@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pooja Earnings Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .app-container {
+      background: #ffffff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+      position: relative;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-top: 0;
+    }
+    #installBtn {
+      display: none; /* Hidden until browser says it can be installed */
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+    select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+    .btn-add { background-color: #4CAF50; color: white; }
+    .action-row { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-action { background-color: #2196F3; color: white; flex: 1; }
+    #displayResult { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; font-size: 15px; }
+    .results-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .results-table th, .results-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+    .results-table th { background-color: rgba(0,0,0,0.05); font-weight: bold; }
+    .results-table .amount-col { text-align: right; }
+    .total-row td { font-weight: bold; font-size: 16px; border-top: 2px solid #555; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <button id="installBtn">📲 Install App to Home Screen</button>
+    <h2>Earnings Tracker</h2>
+
+    <div class="form-group">
+      <label for="poojaSelect">Select Pooja:</label>
+      <select id="poojaSelect">
+        <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
+        <option value="Ganapati Homa">Ganapati Homa</option>
+        <option value="Gruhapravesha">Gruhapravesha</option>
+        <option value="Navagraha Shanti">Navagraha Shanti</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="earnAmount">Earnings Amount (₹):</label>
+      <input type="number" id="earnAmount" placeholder="Enter amount..." min="0">
+    </div>
+
+    <div class="form-group">
+      <label for="poojaDate">Date:</label>
+      <input type="date" id="poojaDate">
+    </div>
+
+    <button class="btn-add" onclick="addEarnings()">Add to Ledger</button>
+
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+    <div class="action-row">
+      <button class="btn-action" onclick="showTotal()">Count Total</button>
+      <button class="btn-action" onclick="showMonthly()">Count Monthly</button>
+    </div>
+
+    <div id="displayResult"></div>
+  </div>
+
+  <script>
+    // --- PWA INSTALLATION LOGIC ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log("Service Worker Registered");
+      });
+    }
+
+    // Listen for the install prompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault(); // Stop Chrome from auto-showing the prompt
+      deferredPrompt = e; // Save the event
+      installBtn.style.display = 'block'; // Show our custom install button
+    });
+
+    // When the user clicks the install button
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt(); // Show the system install prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installBtn.style.display = 'none'; // Hide button if installed
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    // --- TRACKER LOGIC ---
+    document.getElementById('poojaDate').valueAsDate = new Date();
+    let ledger = JSON.parse(localStorage.getItem('poojaLedger')) || [];
+
+    function addEarnings() {
+      const pooja = document.getElementById('poojaSelect').value;
+      const amount = parseFloat(document.getElementById('earnAmount').value);
+      const date = document.getElementById('poojaDate').value;
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid earnings amount.");
+        return;
+      }
+
+      ledger.push({ pooja: pooja, amount: amount, date: date });
+      localStorage.setItem('poojaLedger', JSON.stringify(ledger));
+      document.getElementById('earnAmount').value = '';
+      
+      const resultBox = document.getElementById('displayResult');
+      resultBox.style.display = 'block';
+      resultBox.style.backgroundColor = '#e8f5e9';
+      resultBox.style.color = '#2e7d32';
+      resultBox.innerHTML = "<div style='text-align:center; font-weight:bold;'>Entry Saved Successfully!</div>";
+      setTimeout(() => { resultBox.style.display = 'none'; }, 2000);
+    }
+
+    function renderTable(entries, titleText, bgColor, highlightColor) {
+      const resultBox = document.getElementById('displayResult');
+      resultBox.style.display = 'block';
+      resultBox.style.backgroundColor = bgColor;
+      resultBox.style.color = '#333';
+
+      if (entries.length === 0) {
+        resultBox.innerHTML = `<h3 style="margin-top:0; color:${highlightColor}; text-align:center;">${titleText}</h3><p style="text-align:center;">No records found.</p>`;
+        return;
+      }
+
+      let totalAmount = 0;
+      let html = `<h3 style="margin-top:0; color:${highlightColor}; text-align:center;">${titleText}</h3>`;
+      html += `<table class="results-table"><tr><th>Date</th><th>Pooja</th><th class="amount-col">Amount</th></tr>`;
+
+      entries.forEach(entry => {
+        totalAmount += entry.amount;
+        html += `<tr><td>${entry.date}</td><td>${entry.pooja}</td><td class="amount-col">₹${entry.amount}</td></tr>`;
+      });
+
+      html += `<tr class="total-row"><td colspan="2" style="text-align: right;">Grand Total:</td><td class="amount-col" style="color:${highlightColor};">₹${totalAmount}</td></tr></table>`;
+      resultBox.innerHTML = html;
+    }
+
+    function showTotal() { renderTable(ledger, 'All-Time Earnings', '#e3f2fd', '#1565c0'); }
+    function showMonthly() {
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const monthlyEntries = ledger.filter(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+      });
+      renderTable(monthlyEntries, 'Earnings This Month', '#fff3e0', '#e65100');
+    }
+  </script>
+
+</body>
+</html>

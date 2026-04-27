@@ -2,190 +2,439 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pooja Earnings Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="manifest" href="manifest.json">
+  <title>Priest Ledger App</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    .app-container {
-      background: #ffffff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 450px;
-      position: relative;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-top: 0;
-    }
-    #installBtn {
-      display: none; /* Hidden until browser says it can be installed */
-      background-color: #ff9800;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      width: 100%;
-      margin-bottom: 15px;
-    }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-    select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-    .btn-add { background-color: #4CAF50; color: white; }
-    .action-row { display: flex; gap: 10px; margin-top: 15px; }
-    .btn-action { background-color: #2196F3; color: white; flex: 1; }
-    #displayResult { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; font-size: 15px; }
-    .results-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .results-table th, .results-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
-    .results-table th { background-color: rgba(0,0,0,0.05); font-weight: bold; }
-    .results-table .amount-col { text-align: right; }
-    .total-row td { font-weight: bold; font-size: 16px; border-top: 2px solid #555; }
+    /* --- Modern Premium Reset & Base --- */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%); margin: 0; padding: 15px 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: #1e293b; }
+    .app-container { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.05); width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.6); }
+    
+    h2 { text-align: center; font-weight: 700; font-size: 26px; margin: 0 0 25px 0; background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px; }
+    
+    #installBtn { display: none; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
+
+    .form-group { margin-bottom: 18px; width: 100%; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    select, input[type="number"], input[type="date"], input[type="month"], input[type="search"] { width: 100%; padding: 14px 16px; border: 2px solid transparent; border-radius: 12px; font-size: 16px; background-color: #f1f5f9; color: #0f172a; font-weight: 500; transition: all 0.3s ease; -webkit-appearance: none; appearance: none; }
+    select { cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 16px top 50%; background-size: 12px auto; }
+    select:focus, input:focus { outline: none; background-color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+    
+    .folder-select { background-color: #e0f2fe; color: #0284c7; font-weight: 700; border: 2px solid #bae6fd; }
+    
+    .type-toggle { position: relative; display: flex; background: #e2e8f0; border-radius: 100px; padding: 4px; margin-bottom: 25px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.04); }
+    .type-toggle input[type="radio"] { display: none; }
+    .type-toggle label { flex: 1; text-align: center; padding: 12px; z-index: 1; font-size: 15px; font-weight: 700; color: #64748b; cursor: pointer; transition: color 0.3s ease; }
+    .toggle-slider { position: absolute; top: 4px; left: 4px; bottom: 4px; width: calc(50% - 4px); background: #ffffff; border-radius: 100px; transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 0; }
+    #typeExpense:checked ~ .toggle-slider { transform: translateX(100%); }
+    #typeIncome:checked ~ .income-label { color: #059669; }
+    #typeExpense:checked ~ .expense-label { color: #dc2626; }
+
+    button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; font-weight: 700; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    button:active { transform: scale(0.97); }
+    
+    .btn-add { background: #0f172a; color: white; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
+    .btn-add.editing { background: #ea580c; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2); }
+    .btn-cancel { background: #cbd5e1; color: #475569; display: none; margin-top: 10px; }
+    
+    .action-row { display: flex; gap: 12px; margin-top: 10px; align-items: stretch; }
+    .btn-action { background: #eff6ff; color: #2563eb; border: 2px solid #bfdbfe; }
+    
+    /* Share Button Styling */
+    #shareTripBtn { display: none; background: #ecfdf5; color: #059669; border: 2px solid #a7f3d0; margin-bottom: 15px; }
+    
+    hr { margin: 30px 0; border: 0; height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); }
+    
+    #searchContainer { margin-top: 20px; }
+    #searchInput { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: 16px 50%; padding-left: 45px; }
+    
+    #displayResult { margin-top: 15px; padding: 20px; border-radius: 16px; display: none; background: #ffffff; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+    
+    .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 8px; }
+    .results-table { width: 100%; min-width: 320px; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+    .results-table th, .results-table td { padding: 14px 10px; border-bottom: 1px solid #f1f5f9; text-align: left; vertical-align: middle; }
+    .results-table th { background: #f8fafc; font-weight: 600; color: #64748b; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; position: sticky; top: 0; }
+    .results-table .amount-col { text-align: right; font-variant-numeric: tabular-nums; }
+    .results-table .actions-col { text-align: right; white-space: nowrap; width: 70px; }
+    
+    .category-pill { display: inline-block; padding: 4px 10px; background: #f1f5f9; border-radius: 20px; font-size: 13px; font-weight: 500; color: #475569; }
+    .income-text { color: #059669; font-weight: 700; }
+    .expense-text { color: #dc2626; font-weight: 700; }
+    
+    .total-summary { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; padding: 20px; margin-top: 20px; text-align: center; font-size: 24px; font-weight: 800; border: 1px solid #e2e8f0; letter-spacing: -0.5px; }
+    .btn-icon { background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; font-size: 14px; padding: 6px; margin-left: 4px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; color: #64748b; }
+    
+    /* Import Modal */
+    #importOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+    .import-card { background: white; padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    
+    @media (max-width: 380px) { .app-container { padding: 16px; border-radius: 16px; } select, input { font-size: 16px; padding: 12px; } button { padding: 14px; } }
   </style>
 </head>
 <body>
 
+  <div id="importOverlay">
+    <div class="import-card">
+      <h3 style="margin-top:0; font-size:22px; color:#0f172a;">📥 Trip Incoming!</h3>
+      <p id="importMessage" style="color:#475569; line-height:1.5;">A friend has shared a trip with you.</p>
+      <div class="action-row" style="margin-top:25px;">
+        <button class="btn-action" style="background:#f1f5f9; color:#475569; border:none;" onclick="cancelImport()">Decline</button>
+        <button class="btn-add" onclick="confirmImport()">Import Data</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container">
     <button id="installBtn">📲 Install App to Home Screen</button>
-    <h2>Earnings Tracker</h2>
+    <h2>Ledger</h2>
 
     <div class="form-group">
-      <label for="poojaSelect">Select Pooja:</label>
-      <select id="poojaSelect">
-        <option value="Satyanarayana Pooja">Satyanarayana Pooja</option>
-        <option value="Ganapati Homa">Ganapati Homa</option>
-        <option value="Gruhapravesha">Gruhapravesha</option>
-        <option value="Navagraha Shanti">Navagraha Shanti</option>
-        <option value="Other">Other</option>
+      <label for="folderSelect">Current Ledger</label>
+      <select id="folderSelect" class="folder-select" onchange="handleFolderChange()">
+        <option value="GENERAL">📁 General Ledger</option>
+        <option value="NEW">➕ Create New Trip Folder...</option>
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="earnAmount">Earnings Amount (₹):</label>
-      <input type="number" id="earnAmount" placeholder="Enter amount..." min="0">
+    <div class="type-toggle">
+      <input type="radio" id="typeIncome" name="txnType" value="income" checked onchange="handleTypeChange()">
+      <label for="typeIncome" class="income-label">Income</label>
+      <input type="radio" id="typeExpense" name="txnType" value="expense" onchange="handleTypeChange()">
+      <label for="typeExpense" class="expense-label">Expense</label>
+      <div class="toggle-slider"></div>
     </div>
 
     <div class="form-group">
-      <label for="poojaDate">Date:</label>
-      <input type="date" id="poojaDate">
+      <label for="categorySelect">Category</label>
+      <select id="categorySelect"></select>
     </div>
 
-    <button class="btn-add" onclick="addEarnings()">Add to Ledger</button>
+    <div class="form-group">
+      <label for="amount">Amount (₹)</label>
+      <input type="number" id="amount" placeholder="0.00" inputmode="numeric" min="0">
+    </div>
 
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+    <div class="form-group">
+      <label for="txnDate">Date</label>
+      <input type="date" id="txnDate">
+    </div>
 
-    <div class="action-row">
-      <button class="btn-action" onclick="showTotal()">Count Total</button>
-      <button class="btn-action" onclick="showMonthly()">Count Monthly</button>
+    <button id="submitBtn" class="btn-add" onclick="saveTransaction()">Add to Folder</button>
+    <button id="cancelBtn" class="btn-cancel" onclick="cancelEdit()">Cancel Edit</button>
+
+    <hr>
+
+    <button class="btn-action" onclick="triggerTotalView()" style="margin-bottom: 10px; width: 100%; border-color: #94a3b8; color: #475569; background: #f8fafc;">View Entire Trip</button>
+    
+    <button id="shareTripBtn" onclick="shareCurrentTrip()">📡 Beam Trip to Peers</button>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label for="monthPicker">Monthly Report</label>
+      <div class="action-row">
+        <input type="month" id="monthPicker" style="flex: 2;">
+        <button class="btn-action" onclick="triggerMonthlyView()" style="flex: 1;">View</button>
+      </div>
+    </div>
+
+    <div id="searchContainer" class="form-group" style="display: none;">
+      <input type="search" id="searchInput" placeholder="Search records..." oninput="refreshView()">
     </div>
 
     <div id="displayResult"></div>
   </div>
 
   <script>
-    // --- PWA INSTALLATION LOGIC ---
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
+    const incomeCategories = ["Aparam", "Homam", "Purvam", "Poojai", "Laukikam", "Other Income"];
+    const expenseCategories = ["Travel", "Pooja Materials", "Dakshina Given", "Food/Meals", "Other Expense"];
 
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(() => {
-        console.log("Service Worker Registered");
-      });
-    }
+    let ledger = JSON.parse(localStorage.getItem('priestLedger')) || [];
+    let trips = JSON.parse(localStorage.getItem('priestTrips')) || [];
+    let activeTripId = null; 
+    let editingId = null;
+    let currentViewType = null; 
+    let pendingImportData = null;
 
-    // Listen for the install prompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault(); // Stop Chrome from auto-showing the prompt
-      deferredPrompt = e; // Save the event
-      installBtn.style.display = 'block'; // Show our custom install button
-    });
+    document.getElementById('txnDate').valueAsDate = new Date();
+    const now = new Date();
+    document.getElementById('monthPicker').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-    // When the user clicks the install button
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt(); // Show the system install prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          installBtn.style.display = 'none'; // Hide button if installed
-        }
-        deferredPrompt = null;
-      }
-    });
-
-    // --- TRACKER LOGIC ---
-    document.getElementById('poojaDate').valueAsDate = new Date();
-    let ledger = JSON.parse(localStorage.getItem('poojaLedger')) || [];
-
-    function addEarnings() {
-      const pooja = document.getElementById('poojaSelect').value;
-      const amount = parseFloat(document.getElementById('earnAmount').value);
-      const date = document.getElementById('poojaDate').value;
-
-      if (isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid earnings amount.");
-        return;
-      }
-
-      ledger.push({ pooja: pooja, amount: amount, date: date });
-      localStorage.setItem('poojaLedger', JSON.stringify(ledger));
-      document.getElementById('earnAmount').value = '';
+    // --- P2P SERVERLESS DATA BEAM LOGIC ---
+    
+    // 1. Check for incoming data on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const incomingData = params.get('beam');
       
-      const resultBox = document.getElementById('displayResult');
-      resultBox.style.display = 'block';
-      resultBox.style.backgroundColor = '#e8f5e9';
-      resultBox.style.color = '#2e7d32';
-      resultBox.innerHTML = "<div style='text-align:center; font-weight:bold;'>Entry Saved Successfully!</div>";
-      setTimeout(() => { resultBox.style.display = 'none'; }, 2000);
+      if (incomingData) {
+        try {
+          const decoded = decodeURIComponent(atob(incomingData));
+          pendingImportData = JSON.parse(decoded);
+          
+          document.getElementById('importMessage').innerHTML = 
+            `You are about to import the trip: <br><strong style="color:#0f172a; font-size:18px;">"${pendingImportData.trip.name}"</strong><br><br>This includes ${pendingImportData.entries.length} recorded transactions.`;
+          document.getElementById('importOverlay').style.display = 'flex';
+          
+          // Clear URL so refreshing doesn't re-trigger it
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch(e) {
+          showToast("Failed to read beamed data. Link might be broken.");
+        }
+      }
+    });
+
+    function confirmImport() {
+      if (!pendingImportData) return;
+      
+      // Generate a new local ID for this trip so it doesn't collide
+      const newTripId = Date.now();
+      const newTrip = { id: newTripId, name: pendingImportData.trip.name + ' (Imported)' };
+      
+      // Update entry IDs and link to new trip
+      const mappedEntries = pendingImportData.entries.map(entry => ({
+        ...entry,
+        id: Date.now() + Math.random(), // ensure unique IDs
+        tripId: newTripId
+      }));
+      
+      trips.push(newTrip);
+      ledger = ledger.concat(mappedEntries);
+      
+      localStorage.setItem('priestTrips', JSON.stringify(trips));
+      localStorage.setItem('priestLedger', JSON.stringify(ledger));
+      
+      activeTripId = newTripId;
+      initFolders();
+      
+      document.getElementById('importOverlay').style.display = 'none';
+      showToast("Trip Imported Successfully!");
+      triggerTotalView();
     }
 
-    function renderTable(entries, titleText, bgColor, highlightColor) {
-      const resultBox = document.getElementById('displayResult');
-      resultBox.style.display = 'block';
-      resultBox.style.backgroundColor = bgColor;
-      resultBox.style.color = '#333';
+    function cancelImport() {
+      pendingImportData = null;
+      document.getElementById('importOverlay').style.display = 'none';
+    }
 
-      if (entries.length === 0) {
-        resultBox.innerHTML = `<h3 style="margin-top:0; color:${highlightColor}; text-align:center;">${titleText}</h3><p style="text-align:center;">No records found.</p>`;
+    // 2. Export and Share
+    async function shareCurrentTrip() {
+      if (!activeTripId) return;
+      
+      const tripToShare = trips.find(t => t.id === activeTripId);
+      const entriesToShare = ledger.filter(e => e.tripId === activeTripId);
+      
+      if (entriesToShare.length === 0) {
+        showToast("Add some records before sharing!");
         return;
       }
 
-      let totalAmount = 0;
-      let html = `<h3 style="margin-top:0; color:${highlightColor}; text-align:center;">${titleText}</h3>`;
-      html += `<table class="results-table"><tr><th>Date</th><th>Pooja</th><th class="amount-col">Amount</th></tr>`;
+      const payload = { trip: tripToShare, entries: entriesToShare };
+      const encodedPayload = btoa(encodeURIComponent(JSON.stringify(payload)));
+      
+      // Build the magic link
+      const shareUrl = `${window.location.origin}${window.location.pathname}?beam=${encodedPayload}`;
+      
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: `Ledger: ${tripToShare.name}`,
+            text: `Tap this link to securely import the "${tripToShare.name}" ledger into your app.`,
+            url: shareUrl
+          });
+        } catch (err) {
+          console.log('Share cancelled or failed.', err);
+        }
+      } else {
+        // Fallback for desktop browsers
+        navigator.clipboard.writeText(shareUrl);
+        showToast("Magic Link copied to clipboard!");
+      }
+    }
 
-      entries.forEach(entry => {
-        totalAmount += entry.amount;
-        html += `<tr><td>${entry.date}</td><td>${entry.pooja}</td><td class="amount-col">₹${entry.amount}</td></tr>`;
+    // --- STANDARD APP LOGIC ---
+
+    function initFolders() {
+      const select = document.getElementById('folderSelect');
+      while (select.options.length > 2) { select.remove(2); }
+      
+      trips.forEach(trip => {
+        const opt = document.createElement('option');
+        opt.value = trip.id;
+        opt.textContent = `✈️ ${trip.name}`;
+        select.appendChild(opt);
       });
+      
+      select.value = activeTripId === null ? 'GENERAL' : activeTripId;
+      
+      // Toggle Share Button Visibility
+      document.getElementById('shareTripBtn').style.display = activeTripId ? 'block' : 'none';
+    }
 
-      html += `<tr class="total-row"><td colspan="2" style="text-align: right;">Grand Total:</td><td class="amount-col" style="color:${highlightColor};">₹${totalAmount}</td></tr></table>`;
+    function handleFolderChange() {
+      const select = document.getElementById('folderSelect');
+      if (select.value === 'NEW') {
+        const tripName = prompt("Enter a name for the new trip (e.g. Kasi 2026):");
+        if (tripName && tripName.trim() !== '') {
+          const newTrip = { id: Date.now(), name: tripName.trim() };
+          trips.push(newTrip);
+          localStorage.setItem('priestTrips', JSON.stringify(trips));
+          activeTripId = newTrip.id;
+        } else {
+          select.value = activeTripId === null ? 'GENERAL' : activeTripId;
+          return;
+        }
+      } else {
+        activeTripId = select.value === 'GENERAL' ? null : parseInt(select.value);
+      }
+      
+      initFolders();
+      refreshView();
+    }
+
+    function handleTypeChange() {
+      updateCategories();
+      refreshView(); 
+    }
+
+    function updateCategories() {
+      const type = document.querySelector('input[name="txnType"]:checked').value;
+      const select = document.getElementById('categorySelect');
+      select.innerHTML = '';
+      const options = type === 'income' ? incomeCategories : expenseCategories;
+      options.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+      });
+    }
+
+    function saveTransaction() {
+      const type = document.querySelector('input[name="txnType"]:checked').value;
+      const category = document.getElementById('categorySelect').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const date = document.getElementById('txnDate').value;
+
+      if (isNaN(amount) || amount <= 0) { alert("Please enter a valid amount."); return; }
+
+      if (editingId) {
+        const index = ledger.findIndex(e => e.id === editingId);
+        if (index > -1) ledger[index] = { id: editingId, tripId: activeTripId, type, category, amount, date };
+        cancelEdit(); 
+      } else {
+        ledger.push({ id: Date.now(), tripId: activeTripId, type, category, amount, date });
+        document.getElementById('amount').value = ''; 
+      }
+
+      localStorage.setItem('priestLedger', JSON.stringify(ledger));
+      showToast(editingId ? "Entry Updated" : "Saved Successfully");
+      refreshView();
+    }
+
+    function editTransaction(id) {
+      const entry = ledger.find(e => e.id === id);
+      if (!entry) return;
+      document.querySelector(`input[name="txnType"][value="${entry.type}"]`).checked = true;
+      updateCategories();
+      document.getElementById('categorySelect').value = entry.category;
+      document.getElementById('amount').value = entry.amount;
+      document.getElementById('txnDate').value = entry.date;
+      editingId = id;
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.textContent = 'Update Entry'; submitBtn.classList.add('editing');
+      document.getElementById('cancelBtn').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      document.getElementById('amount').value = '';
+      document.getElementById('txnDate').valueAsDate = new Date();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.textContent = 'Add to Folder'; submitBtn.classList.remove('editing');
+      document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    function deleteTransaction(id) {
+      if (confirm("Delete this entry entirely?")) {
+        ledger = ledger.filter(e => e.id !== id);
+        localStorage.setItem('priestLedger', JSON.stringify(ledger));
+        if (editingId === id) cancelEdit();
+        refreshView();
+      }
+    }
+
+    function renderTable(entriesToFilter, titleText) {
+      const resultBox = document.getElementById('displayResult');
+      const activeType = document.querySelector('input[name="txnType"]:checked').value;
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      
+      let contextEntries = entriesToFilter.filter(e => e.tripId === activeTripId);
+      let displayEntries = contextEntries.filter(e => e.type === activeType);
+      
+      if (searchTerm) {
+        displayEntries = displayEntries.filter(e => e.category.toLowerCase().includes(searchTerm) || e.amount.toString().includes(searchTerm) || e.date.includes(searchTerm));
+      }
+      
+      let totalAmount = 0;
+      let contextLabel = activeTripId === null ? "General Ledger" : `Trip: ${trips.find(t=>t.id===activeTripId)?.name}`;
+      resultBox.style.display = 'block';
+
+      let html = `<h3 style="margin-top:0; margin-bottom:2px; text-align:center; color:#0f172a; font-weight:700;">${titleText}</h3>`;
+      html += `<p style="text-align:center; margin-top:0; margin-bottom:15px; font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">${contextLabel}</p>`;
+
+      if (displayEntries.length === 0) {
+        const typeLabel = activeType === 'income' ? 'Income' : 'Expense';
+        const emptyMsg = searchTerm ? `No results for "${searchTerm}"` : `No ${typeLabel} records found.`;
+        html += `<p style="text-align:center; color:#94a3b8; font-weight:500; padding: 30px 0;">${emptyMsg}</p>`;
+      } else {
+        displayEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+        html += `<div class="table-responsive"><div style="max-height: 350px; overflow-y: auto;">`;
+        html += `<table class="results-table"><tr><th>Date</th><th>Category</th><th class="amount-col">Amt</th><th class="actions-col"></th></tr>`;
+        displayEntries.forEach(entry => {
+          totalAmount += entry.amount;
+          const isIncome = entry.type === 'income';
+          const rowClass = isIncome ? 'income-text' : 'expense-text';
+          const sign = isIncome ? '+' : '-';
+          const dateParts = entry.date.split('-');
+          html += `<tr><td style="color:#64748b; font-weight:500;">${dateParts[2]}/${dateParts[1]}</td><td><span class="category-pill">${entry.category}</span></td><td class="amount-col ${rowClass}">${sign}₹${entry.amount}</td><td class="actions-col"><button class="btn-icon" onclick="editTransaction(${entry.id})" title="Edit">✎</button><button class="btn-icon" onclick="deleteTransaction(${entry.id})" title="Delete">✕</button></td></tr>`;
+        });
+        html += `</table></div></div>`;
+      }
+      
+      const summaryLabel = activeType === 'income' ? 'Total Income' : 'Total Expense';
+      const summaryColor = activeType === 'income' ? '#059669' : '#dc2626';
+      html += `<div class="total-summary" style="color: ${summaryColor};"><div style="font-size:12px; text-transform:uppercase; color:#64748b; margin-bottom:4px; font-weight:600;">${summaryLabel}</div>₹${totalAmount.toLocaleString('en-IN')}</div>`;
       resultBox.innerHTML = html;
     }
 
-    function showTotal() { renderTable(ledger, 'All-Time Earnings', '#e3f2fd', '#1565c0'); }
+    function triggerTotalView() { document.getElementById('searchInput').value = ''; showTotal(); }
+    function triggerMonthlyView() { document.getElementById('searchInput').value = ''; showMonthly(); }
+    function showTotal() { currentViewType = 'all'; document.getElementById('searchContainer').style.display = 'block'; renderTable(ledger, 'All-Time Report'); }
     function showMonthly() {
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const monthlyEntries = ledger.filter(entry => {
-        const entryDate = new Date(entry.date);
-        return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-      });
-      renderTable(monthlyEntries, 'Earnings This Month', '#fff3e0', '#e65100');
+      currentViewType = 'monthly';
+      const selectedMonthStr = document.getElementById('monthPicker').value;
+      if (!selectedMonthStr) { alert("Please select a month."); return; }
+      const [year, month] = selectedMonthStr.split('-');
+      const monthlyEntries = ledger.filter(entry => { const entryDate = new Date(entry.date); return entryDate.getMonth() + 1 === parseInt(month) && entryDate.getFullYear() === parseInt(year); });
+      document.getElementById('searchContainer').style.display = 'block';
+      const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+      renderTable(monthlyEntries, monthName);
     }
-  </script>
+    function refreshView() { if (currentViewType === 'all') showTotal(); else if (currentViewType === 'monthly') showMonthly(); }
 
+    function showToast(msg) {
+      const toast = document.createElement('div'); toast.textContent = msg;
+      Object.assign(toast.style, { position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', background: '#0f172a', color: '#fff', padding: '14px 28px', borderRadius: '100px', zIndex: '1000', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', transition: 'opacity 0.3s', fontSize: '15px', fontWeight: '600', whiteSpace: 'nowrap' });
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
+    }
+
+    updateCategories(); initFolders();
+  </script>
 </body>
 </html>
